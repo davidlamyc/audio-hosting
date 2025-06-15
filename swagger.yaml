@@ -1,0 +1,539 @@
+openapi: 3.0.0
+info:
+  title: Audio Hosting Platform API
+  version: 1.0.0
+  description: A comprehensive API for audio file hosting and management
+  contact:
+    name: S&S COE Development Team
+    email: dev@audiohosting.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: http://localhost:5000/api
+    description: Development server
+  - url: https://api.audiohosting.com/api
+    description: Production server
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    sessionAuth:
+      type: apiKey
+      in: cookie
+      name: connect.sid
+  schemas:
+    User:
+      type: object
+      required:
+        - username
+        - email
+      properties:
+        id:
+          type: integer
+          description: User unique identifier
+        username:
+          type: string
+          description: Username for login
+          minLength: 3
+          maxLength: 50
+        email:
+          type: string
+          format: email
+          description: User email address
+        created_at:
+          type: string
+          format: date-time
+          description: Account creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+    AudioFile:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Audio file unique identifier
+        user_id:
+          type: integer
+          description: Owner user ID
+        filename:
+          type: string
+          description: System generated filename
+        original_name:
+          type: string
+          description: Original uploaded filename
+        file_path:
+          type: string
+          description: Server file path
+        description:
+          type: string
+          description: User provided description
+          maxLength: 500
+        category:
+          type: string
+          enum:
+            - music
+            - podcast
+            - audiobook
+            - sound-effect
+            - voice-recording
+            - other
+          description: Audio file category
+        file_size:
+          type: integer
+          description: File size in bytes
+        duration:
+          type: integer
+          description: Duration in seconds
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          description: Upload timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          description: User login username
+        password:
+          type: string
+          description: User password
+    LoginResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Login successful
+        user:
+          $ref: '#/components/schemas/User'
+        token:
+          type: string
+          description: JWT authentication token
+    CreateUserRequest:
+      type: object
+      required:
+        - username
+        - email
+        - password
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 50
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 6
+    UpdateUserRequest:
+      type: object
+      required:
+        - username
+        - email
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 50
+        email:
+          type: string
+          format: email
+    AudioUploadResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Audio file uploaded successfully
+        audio:
+          $ref: '#/components/schemas/AudioFile'
+    AudioListResponse:
+      type: object
+      properties:
+        audioFiles:
+          type: array
+          items:
+            $ref: '#/components/schemas/AudioFile'
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message
+        error:
+          type: string
+          description: Detailed error information
+security:
+  - sessionAuth: []
+paths:
+  /audio/upload:
+    post:
+      summary: Upload audio file
+      description: Upload an audio file with metadata
+      tags:
+        - Audio Files
+      security:
+        - sessionAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - audio
+                - description
+                - category
+              properties:
+                audio:
+                  type: string
+                  format: binary
+                  description: Audio file to upload (max 50MB)
+                description:
+                  type: string
+                  maxLength: 500
+                  description: Description of the audio file
+                  example: My awesome podcast episode
+                category:
+                  type: string
+                  enum:
+                    - music
+                    - podcast
+                    - audiobook
+                    - sound-effect
+                    - voice-recording
+                    - other
+                  description: Category of the audio file
+                  example: podcast
+      responses:
+        '201':
+          description: Audio file uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AudioUploadResponse'
+        '400':
+          description: No file uploaded or invalid file type
+        '401':
+          description: Authentication required
+        '413':
+          description: File too large (max 50MB)
+        '500':
+          description: Internal server error
+  /audio:
+    get:
+      summary: Get user's audio files
+      description: Retrieve all audio files uploaded by the authenticated user
+      tags:
+        - Audio Files
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: List of user's audio files
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AudioListResponse'
+        '401':
+          description: Authentication required
+        '500':
+          description: Internal server error
+  /audio/{id}:
+    get:
+      summary: Stream/download audio file
+      description: Stream or download a specific audio file (only accessible to the owner)
+      tags:
+        - Audio Files
+      security:
+        - sessionAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Audio file ID
+      responses:
+        '200':
+          description: Audio file stream
+          content:
+            audio/*:
+              schema:
+                type: string
+                format: binary
+        '401':
+          description: Authentication required
+        '404':
+          description: Audio file not found or not accessible
+        '500':
+          description: Internal server error
+    delete:
+      summary: Delete audio file
+      description: Delete an audio file and remove it from storage
+      tags:
+        - Audio Files
+      security:
+        - sessionAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: Audio file ID
+      responses:
+        '200':
+          description: Audio file deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Audio file deleted successfully
+        '401':
+          description: Authentication required
+        '404':
+          description: Audio file not found or not accessible
+        '500':
+          description: Internal server error
+  /auth/login:
+    post:
+      summary: User login
+      description: Authenticate user with username and password
+      tags:
+        - Authentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              username: admin
+              password: admin123
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+                example: connect.sid=s%3A...; Path=/; HttpOnly
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                message: Invalid credentials
+        '500':
+          description: Internal server error
+  /auth/logout:
+    post:
+      summary: User logout
+      description: Destroy user session
+      tags:
+        - Authentication
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Logout successful
+        '500':
+          description: Could not log out
+  /auth/check:
+    get:
+      summary: Check authentication status
+      description: Verify if user is currently authenticated
+      tags:
+        - Authentication
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: Authentication status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  authenticated:
+                    type: boolean
+                  user:
+                    $ref: '#/components/schemas/User'
+              examples:
+                authenticated:
+                  summary: User is authenticated
+                  value:
+                    authenticated: true
+                    user:
+                      id: 1
+                      username: admin
+                not_authenticated:
+                  summary: User is not authenticated
+                  value:
+                    authenticated: false
+  /users:
+    post:
+      summary: Create new user
+      description: Register a new user account
+      tags:
+        - User Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+            example:
+              username: newuser
+              email: newuser@example.com
+              password: password123
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User created successfully
+                  user:
+                    $ref: '#/components/schemas/User'
+        '400':
+          description: User already exists or validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+    get:
+      summary: Get users
+      description: Retrieve all users
+      tags:
+        - User Management
+      security:
+        - sessionAuth: []
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '401':
+          description: Authentication required
+        '500':
+          description: Internal server error
+  /users/{id}:
+    put:
+      summary: Update user profile
+      description: Update user information (users can only update their own profile)
+      tags:
+        - User Management
+      security:
+        - sessionAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: User ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+            example:
+              username: updateduser
+              email: updated@example.com
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User updated successfully
+                  user:
+                    $ref: '#/components/schemas/User'
+        '401':
+          description: Authentication required
+        '403':
+          description: Unauthorized - can only update own profile
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error
+    delete:
+      summary: Delete user account
+      description: Delete user account and all associated audio files
+      tags:
+        - User Management
+      security:
+        - sessionAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+          description: User ID
+      responses:
+        '200':
+          description: User deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: User deleted successfully
+        '401':
+          description: Authentication required
+        '403':
+          description: Unauthorized - can only delete own account
+        '404':
+          description: User not found
+        '500':
+          description: Internal server error
+tags: []

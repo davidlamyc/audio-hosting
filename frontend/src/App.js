@@ -78,7 +78,7 @@ function App() {
                                         <Routes>
                                             <Route path="/dashboard" element={<Dashboard user={user} />} />
                                             <Route path="/profilemanagement" element={<ProfileManagement user={user} setUser={setUser} />} />
-                                            <Route path="/usermanagement" element={<UserManagement />} />
+                                            <Route path="/usermanagement" element={<UserManagement user={user}/>} />
                                             <Route path="/upload" element={<AudioUpload />} />
                                             <Route path="/library" element={<AudioLibrary />} />
                                             <Route path="/" element={<Navigate to="/dashboard" />} />

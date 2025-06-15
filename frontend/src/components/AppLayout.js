@@ -35,11 +35,11 @@ const AppLayout = ({ children, user, onLogout }) => {
             icon: <AudioOutlined />,
             label: 'Audio Library',
         },
-        {
-            key: '/profilemanagement',
-            icon: <UserOutlined />,
-            label: 'Profile Management',
-        },
+        // {
+        //     key: '/profilemanagement',
+        //     icon: <UserOutlined />,
+        //     label: 'Profile Management',
+        // },
         {
             key: '/usermanagement',
             icon: <UserOutlined />,
@@ -48,12 +48,12 @@ const AppLayout = ({ children, user, onLogout }) => {
     ];
 
     const userMenuItems = [
-        {
-            key: 'profile',
-            icon: <UserOutlined />,
-            label: 'Profile Settings',
-            onClick: () => navigate('/profilemanagement'),
-        },
+        // {
+        //     key: 'profile',
+        //     icon: <UserOutlined />,
+        //     label: 'Profile Settings',
+        //     onClick: () => navigate('/profilemanagement'),
+        // },
         {
             type: 'divider',
         },

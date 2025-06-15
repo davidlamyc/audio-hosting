@@ -28,7 +28,7 @@ import axios from 'axios';
 const { Title } = Typography;
 const { confirm } = Modal;
 
-const UserProfile = () => {
+const UserProfile = ({ user }) => {
     const [createUserForm] = Form.useForm();
     const [editUserForm] = Form.useForm();
     const [getUsersLoading, setUsersLoading] = useState(false);
@@ -158,6 +158,7 @@ const UserProfile = () => {
                         icon={<DeleteOutlined />}
                         onClick={() => handleDeleteAccount(record)}
                         size="large"
+                        disabled={record.id === user.id}
                     >
                         Delete Account
                     </Button>
@@ -224,7 +225,7 @@ const UserProfile = () => {
                             size="large"
                             block
                         >
-                            {editLoading ? 'Editing...' : 'Edit Users'}
+                            {editLoading ? 'Editing...' : 'Edit User'}
                         </Button>
                     </Form.Item>
                 </Form>
@@ -309,7 +310,7 @@ const UserProfile = () => {
                                         size="large"
                                         block
                                     >
-                                        {createLoading ? 'Creating...' : 'Create Users'}
+                                        {createLoading ? 'Creating...' : 'Create User'}
                                     </Button>
                                 </Form.Item>
                             </Form>

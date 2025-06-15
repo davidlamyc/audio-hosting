@@ -1,5 +1,7 @@
 FROM node:22-alpine
 
+LABEL deprecated="This image is deprecated."
+
 WORKDIR /app
 
 # Create uploads directory

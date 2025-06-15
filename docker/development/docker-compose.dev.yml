@@ -1,0 +1,79 @@
+# version: '3.8'
+
+services:
+  postgres:
+    extends:
+      file: ../../docker-compose.yml
+      service: postgres
+    ports:
+      - "5432:5432"
+
+  backend:
+    build:
+      context: ../../backend
+      dockerfile: ../docker/development/backend.dev.dockerfile
+    container_name: audio_hosting_backend_dev
+    environment:
+      NODE_ENV: development
+      PORT: 5000
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: audiohosting
+      DB_USER: postgres
+      DB_PASSWORD: password
+      JWT_SECRET: jwt-secret
+      SESSION_SECRET: session-secret
+      FRONTEND_URL: http://localhost:3000
+    ports:
+      - "5000:5000"
+    volumes:
+      - ../../backend/src:/app/src:cached
+      - ../../backend/package.json:/app/package.json:cached
+      - audio_uploads:/app/uploads
+      - /app/node_modules  # Anonymous volume for node_modules
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - audio_hosting_network
+    restart: unless-stopped
+    command: npm run dev
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    build:
+      context: ../../frontend
+      dockerfile: ../docker/development/frontend.dev.dockerfile
+    container_name: audio_hosting_frontend_dev
+    environment:
+      REACT_APP_API_URL: http://localhost:5000/api
+      REACT_APP_ENV: development
+      CHOKIDAR_USEPOLLING: true
+      WATCHPACK_POLLING: true
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../../frontend/src:/app/src:cached
+      - ../../frontend/public:/app/public:cached
+      - ../../frontend/package.json:/app/package.json:cached
+      - /app/node_modules  # Anonymous volume for node_modules
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - audio_hosting_network
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+
+volumes:
+  postgres_data:
+  audio_uploads:
+
+networks:
+  audio_hosting_network:
+    driver: bridge

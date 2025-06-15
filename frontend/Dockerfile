@@ -1,6 +1,8 @@
 # Build stage
 FROM node:18-alpine as builder
 
+LABEL deprecated="This image is deprecated."
+
 WORKDIR /app
 
 # Copy package files

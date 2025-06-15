@@ -250,7 +250,7 @@ const Dashboard = ({ user }) => {
                 {/* Quick Actions */}
                 <Card title="Quick Actions">
                     <Row gutter={[16, 16]}>
-                        <Col xs={24} sm={8}>
+                        <Col xs={24} sm={12}>
                             <Card
                                 hoverable
                                 style={{ textAlign: 'center' }}
@@ -264,7 +264,7 @@ const Dashboard = ({ user }) => {
                                 </div>
                             </Card>
                         </Col>
-                        <Col xs={24} sm={8}>
+                        <Col xs={24} sm={12}>
                             <Card
                                 hoverable
                                 style={{ textAlign: 'center' }}
@@ -278,7 +278,7 @@ const Dashboard = ({ user }) => {
                                 </div>
                             </Card>
                         </Col>
-                        <Col xs={24} sm={8}>
+                        {/* <Col xs={24} sm={8}>
                             <Card
                                 hoverable
                                 style={{ textAlign: 'center' }}
@@ -291,7 +291,7 @@ const Dashboard = ({ user }) => {
                                     <Text type="secondary">Manage your account</Text>
                                 </div>
                             </Card>
-                        </Col>
+                        </Col> */}
                     </Row>
                 </Card>
             </Space>
