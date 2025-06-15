@@ -36,9 +36,14 @@ const AppLayout = ({ children, user, onLogout }) => {
             label: 'Audio Library',
         },
         {
-            key: '/profile',
+            key: '/profilemanagement',
             icon: <UserOutlined />,
-            label: 'Profile',
+            label: 'Profile Management',
+        },
+        {
+            key: '/usermanagement',
+            icon: <UserOutlined />,
+            label: 'User Management',
         },
     ];
 
@@ -47,7 +52,7 @@ const AppLayout = ({ children, user, onLogout }) => {
             key: 'profile',
             icon: <UserOutlined />,
             label: 'Profile Settings',
-            onClick: () => navigate('/profile'),
+            onClick: () => navigate('/profilemanagement'),
         },
         {
             type: 'divider',

@@ -4,6 +4,7 @@ import { ConfigProvider, theme, App as AntApp } from 'antd';
 import axios from 'axios';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import ProfileManagement from './pages/ProfileManagement';
 import UserManagement from './pages/UserManagement';
 import AudioUpload from './pages/AudioUpload';
 import AudioLibrary from './pages/AudioLibrary';
@@ -76,7 +77,8 @@ function App() {
                                     <AppLayout user={user} onLogout={handleLogout}>
                                         <Routes>
                                             <Route path="/dashboard" element={<Dashboard user={user} />} />
-                                            <Route path="/profile" element={<UserManagement user={user} setUser={setUser} />} />
+                                            <Route path="/profilemanagement" element={<ProfileManagement user={user} setUser={setUser} />} />
+                                            <Route path="/usermanagement" element={<UserManagement />} />
                                             <Route path="/upload" element={<AudioUpload />} />
                                             <Route path="/library" element={<AudioLibrary />} />
                                             <Route path="/" element={<Navigate to="/dashboard" />} />

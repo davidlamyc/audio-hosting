@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Card,
     Form,
@@ -10,7 +10,8 @@ import {
     Col,
     Divider,
     Modal,
-    Alert
+    Alert,
+    Table
 } from 'antd';
 import {
     UserOutlined,
@@ -24,31 +25,36 @@ import {
 import { App } from 'antd';
 import axios from 'axios';
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 const { confirm } = Modal;
 
-const UserManagement = ({ user, setUser }) => {
-    const [profileForm] = Form.useForm();
+const UserProfile = () => {
     const [createUserForm] = Form.useForm();
-    const [loading, setLoading] = useState(false);
+    const [editUserForm] = Form.useForm();
+    const [getUsersLoading, setUsersLoading] = useState(false);
     const [createLoading, setCreateLoading] = useState(false);
+    const [users, setUsers] = useState([])
+    const [open, setOpen] = useState(false);
+    const [editLoading, setEditLoading] = useState(false);
     const { message } = App.useApp();
 
-    const handleUpdateProfile = async (values) => {
-        setLoading(true);
-        try {
-            const response = await axios.put(`/users/${user.id}`, values);
-            setUser(response.data.user);
-            message.success('Profile updated successfully!');
-        } catch (error) {
-            message.error(error.response?.data?.message || 'Update failed');
-        } finally {
-            setLoading(false);
-        }
+    useEffect(() => {
+        fetchUsers();
+    }, []);
+
+    const showEditUserModal = (record) => {
+        editUserForm.setFieldsValue(record)
+        setOpen(true);
+    };
+
+    const handleEditCancel = () => {
+        setOpen(false);
+        editUserForm.setFieldsValue({})
     };
 
     const handleCreateUser = async (values) => {
         setCreateLoading(true);
+        setUsersLoading(true);
         try {
             await axios.post('/users', values);
             message.success('User created successfully!');
@@ -57,10 +63,25 @@ const UserManagement = ({ user, setUser }) => {
             message.error(error.response?.data?.message || 'User creation failed');
         } finally {
             setCreateLoading(false);
+            fetchUsers();
         }
     };
 
-    const handleDeleteAccount = () => {
+    const fetchUsers = async () => {
+        setUsersLoading(true);
+        try {
+            const response = await axios.get('/users');
+            setUsers(response.data.users)
+        } catch (error) {
+            setUsers([])
+            message.error('Failed to fetch users');
+            console.error('Fetch error:', error);
+        } finally {
+            setUsersLoading(false);
+        }
+    };
+
+    const handleDeleteAccount = (record) => {
         confirm({
             title: 'Delete Account',
             icon: <ExclamationCircleOutlined />,
@@ -81,46 +102,158 @@ const UserManagement = ({ user, setUser }) => {
             cancelText: 'Cancel',
             onOk: async () => {
                 try {
-                    await axios.delete(`/users/${user.id}`);
+                    await axios.delete(`/users/${record.id}`);
                     message.success('Account deleted successfully');
-                    window.location.reload();
+                    // window.location.reload();
                 } catch (error) {
                     message.error(error.response?.data?.message || 'Account deletion failed');
+                } finally {
+                    fetchUsers();
                 }
             },
         });
     };
 
+    const handleEditUser = async (values) => {
+        setEditLoading(true);
+        try {
+            const response = await axios.put(`/users/${values.id}`, values);
+            message.success('Profile updated successfully!');
+        } catch (error) {
+            message.error(error.response?.data?.message || 'Edit failed');
+        } finally {
+            setEditLoading(false);
+            setOpen(false);
+            fetchUsers();
+        }
+    };
+
+    const columns = [
+        {
+            title: 'Username',
+            dataIndex: 'username',
+            key: 'username',
+        },
+        {
+            title: 'Email',
+            dataIndex: 'email',
+            key: 'email',
+        },
+        {
+            title: 'Action',
+            key: 'action',
+            render: (_, record) => (
+                <Space size="middle">
+                    {/* <a>Invite {record.name}</a> */}
+                    <Button
+                        info
+                        icon={<EditOutlined />}
+                        onClick={() => showEditUserModal(record)}
+                        size="large"
+                    >
+                        Edit Account
+                    </Button>
+                    <Button
+                        danger
+                        icon={<DeleteOutlined />}
+                        onClick={() => handleDeleteAccount(record)}
+                        size="large"
+                    >
+                        Delete Account
+                    </Button>
+                </Space>
+            ),
+        },
+    ];
+
     return (
         <div style={{ padding: '24px' }}>
+            <Modal
+                title="Edit user"
+                open={open}
+                confirmLoading={editLoading}
+                onCancel={handleEditCancel}
+                footer={null}
+            >
+                <Form
+                    form={editUserForm}
+                    layout="vertical"
+                    onFinish={handleEditUser}
+                >
+                    <Form.Item
+                        name="id"
+                        label="id"
+                        hidden={true}
+                    >
+                    </Form.Item>
+
+                    <Form.Item
+                        name="username"
+                        label="Username"
+                        rules={[
+                            { required: true, message: 'Please enter your username!' },
+                            { min: 3, message: 'Username must be at least 3 characters!' }
+                        ]}
+                    >
+                        <Input
+                            prefix={<UserOutlined />}
+                            placeholder="Enter username"
+                            size="large"
+                        />
+                    </Form.Item>
+
+                    <Form.Item
+                        name="email"
+                        label="Email"
+                        rules={[
+                            { required: true, message: 'Please enter your email!' },
+                            { type: 'email', message: 'Please enter a valid email!' }
+                        ]}
+                    >
+                        <Input
+                            prefix={<MailOutlined />}
+                            placeholder="Enter email address"
+                            size="large"
+                        />
+                    </Form.Item>
+                    <Form.Item>
+                        <Button
+                            type="primary"
+                            htmlType="submit"
+                            loading={editLoading}
+                            size="large"
+                            block
+                        >
+                            {editLoading ? 'Editing...' : 'Edit Users'}
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </Modal>
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
                 <Card>
                     <Title level={2} style={{ margin: 0 }}>
-                        <UserOutlined /> Account Management
+                        <UserOutlined />User Management
                     </Title>
-                    <Text type="secondary">
-                        Manage your profile settings and create new user accounts
-                    </Text>
                 </Card>
 
                 <Row gutter={[24, 24]}>
-                    {/* Update Profile Section */}
+                    {/* Create User Section */}
                     <Col xs={24} lg={12}>
                         <Card
                             title={
                                 <Space>
                                     <EditOutlined />
-                                    <span>Update Profile</span>
+                                    <span>Create User</span>
                                 </Space>
                             }
                         >
                             <Form
-                                form={profileForm}
+                                form={createUserForm}
                                 layout="vertical"
-                                onFinish={handleUpdateProfile}
+                                onFinish={handleCreateUser}
                                 initialValues={{
-                                    username: user.username,
-                                    email: user.email || ''
+                                    username: '',
+                                    email: ''
                                 }}
                             >
                                 <Form.Item
@@ -153,51 +286,53 @@ const UserManagement = ({ user, setUser }) => {
                                     />
                                 </Form.Item>
 
+                                <Form.Item
+                                    name="password"
+                                    label="Password"
+                                    rules={[
+                                        { required: true, message: 'Please enter your password!' },
+                                        { min: 6, message: 'Password must be at least 6 characters!' }
+                                    ]}
+                                >
+                                    <Input
+                                        prefix={<LockOutlined />}
+                                        placeholder="Enter password"
+                                        size="large"
+                                    />
+                                </Form.Item>
+
                                 <Form.Item>
                                     <Button
                                         type="primary"
                                         htmlType="submit"
-                                        loading={loading}
+                                        loading={createLoading}
                                         size="large"
                                         block
                                     >
-                                        {loading ? 'Updating...' : 'Update Profile'}
+                                        {createLoading ? 'Creating...' : 'Create Users'}
                                     </Button>
                                 </Form.Item>
                             </Form>
                         </Card>
                     </Col>
                 </Row>
-
-                {/* Danger Zone */}
-                <Card
-                    title={
-                        <Space>
-                            <DeleteOutlined />
-                            <span style={{ color: '#ff4d4f' }}>Danger Zone</span>
-                        </Space>
-                    }
-                    style={{ borderColor: '#ff4d4f' }}
-                >
-                    <Alert
-                        message="Delete Account"
-                        description="Once you delete your account, there is no going back. Please be certain."
-                        type="error"
-                        showIcon
-                        style={{ marginBottom: 16 }}
-                    />
-                    <Button
-                        danger
-                        icon={<DeleteOutlined />}
-                        onClick={handleDeleteAccount}
-                        size="large"
-                    >
-                        Delete Account
-                    </Button>
-                </Card>
+                <Row gutter={[24, 24]}>
+                    <Col xs={24} lg={12}>
+                        <Card
+                            title={
+                                <Space>
+                                    <EditOutlined />
+                                    <span>Manage User</span>
+                                </Space>
+                            }
+                        >
+                            <Table columns={columns} dataSource={users} loading={getUsersLoading} pagination={false} />
+                        </Card>
+                    </Col>
+                </Row>
             </Space>
         </div>
     );
 };
 
-export default UserManagement;
+export default UserProfile;

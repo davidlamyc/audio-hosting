@@ -310,13 +310,13 @@ const AudioLibrary = () => {
                                         >
                                             {currentlyPlaying === audioFile.id && !audioRef.current?.paused ? 'Pause' : 'Play'}
                                         </Button>,
-                                        <Button
-                                            type="text"
-                                            icon={<DownloadOutlined />}
-                                            onClick={() => window.open(`/api/audio/${audioFile.id}`, '_blank')}
-                                        >
-                                            Download
-                                        </Button>,
+                                        // <Button
+                                        //     type="text"
+                                        //     icon={<DownloadOutlined />}
+                                        //     onClick={() => window.open(`/api/audio/${audioFile.id}`, '_blank')}
+                                        // >
+                                        //     Download
+                                        // </Button>,
                                         <Popconfirm
                                             title="Delete audio file"
                                             description="Are you sure you want to delete this audio file?"
