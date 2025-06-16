@@ -7,8 +7,8 @@ This web application is an audio hosting application with the frontend developed
 I endeavour to make more improvements to this application (including the below architecture diagram) before the 18th June 2025, including but not limited to the following:
 
 1. Analyse and implement the handling of various file formats (e.g. mp4/avi). Application currently only tested for mp3 format.
-2. Analyse and implement a more scalable file storage solution, as local storage will certainly not scale.
-3. Improve architecture diagram, and suggest a truly production-ready architecture.
+2. Analyse and implement a more scalable file storage solution, as local storage will certainly not scale. (Not required)
+3. Suggest production-ready architecture. (Done)
 4. Clean up as there is dead code
 
 Any suggestions or feedback are welcomed :smile:
@@ -19,11 +19,35 @@ Any suggestions or feedback are welcomed :smile:
 
 ### 1. Documentation showing the system architecture & API definition
 
-**System architecture**
+**<u>System architecture diagram for this repo</u>**
 
 The below is a simple high-level architecture diagram of the application when starting the production build per section 4.
 
 ![alt text](current.drawio.png)
+
+**<u>System architecture diagram for product-ready system</u>**
+
+The below is a production-ready architecture diagram, with the assumption that audio files need to go through some form of processing before the final storage. As cloud services can enable the system to scale both in terms of storage and compute, I will reference AWS technologies below.
+
+* DNS system (Route 53): for DNS Management
+* Web Application Firewall (WAF): for web security (i.e. DDoS, SQL injection, Rate Limiting, etc.)
+* CDN (CloudFront CDN): for edge location delivery, static asset caching
+* API Gateway: direct traffic to get either static files or dynamic data from services
+* Static File storage for React SPA and other static assets (S3)
+* Static File storage for raw and processed audio files (S3)
+* Kubernetes cluster (EKS): managed k8s cluster to deploy microservices. With regards to the k8s cluster, the below is how the deployments within it can orchestrate the processing of large files in large quanitites in a asynchronous fashion:
+  1. When a request comes into the main service, write audio file metadata to RDS DB.
+  2. Then write the audio file to an S3 bucket to store it in its raw form
+  3. Push a message to a message queue (i.e. kafka) containing metadata of the raw audio file
+  4. Audio processing service would consume the message from step 3 when it has free server resources
+  5. Audio processing service would pull the audio file from the raw audio bucket based on the metadata in the received message, and process it (i.e. compression)
+  6. The processed audio file would be written to a processed audio file bucket
+  7. The audio processing service can inform the main service that processing on the file is done through API call or a message
+  8. The main service would update RDS DB that processing has been done.
+
+![alt text](aws.drawio.png)
+
+If the system has any performance bottle neck when sending large audio file from clients (i.e. browsers) to the backend, we can consider chunking or using presigned URLs to write the files directly to file storage (S3).
 
 **API definition**: Please copy `swagger.yml` and enter the contents into `http://editor.swagger.io/` to view the swagger API documentation
 
