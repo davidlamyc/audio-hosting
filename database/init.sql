@@ -38,19 +38,3 @@ CREATE INDEX idx_audio_files_created_at ON audio_files(created_at);
 -- Insert default admin user (password: admin123)
 INSERT INTO users (username, email, password) VALUES 
 ('admin', 'admin@audiohosting.com', '$2a$10$Hw4E3eJtBrBOMmZQq6ZtS.P3jQIJTY1VFL2RntGBnUbfbgDsx7/S.');
-
--- Create function to update updated_at timestamp
--- CREATE OR REPLACE FUNCTION update_updated_at_column()
--- RETURNS TRIGGER AS $
--- BEGIN
---     NEW.updated_at = CURRENT_TIMESTAMP;
---     RETURN NEW;
--- END;
--- $ language 'plpgsql';
-
--- -- Create triggers for updated_at
--- CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users 
---     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-
--- CREATE TRIGGER update_audio_files_updated_at BEFORE UPDATE ON audio_files 
---     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();

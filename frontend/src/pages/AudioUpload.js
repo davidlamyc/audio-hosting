@@ -42,7 +42,7 @@ const AudioUpload = () => {
     ];
 
     const uploadGuidelines = [
-        'Supported formats: MP3',
+        'Supported formats: mp3, ogg, wav, flac, aac',
         'Maximum file size: 50MB per file',
         'Please provide a meaningful description for better organization',
         'Choose the appropriate category to help with discovery',

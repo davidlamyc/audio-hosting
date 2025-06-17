@@ -8,7 +8,6 @@ import {
     Space,
     Row,
     Col,
-    Divider,
     Modal,
     Alert,
     Table
@@ -19,7 +18,6 @@ import {
     LockOutlined,
     EditOutlined,
     DeleteOutlined,
-    PlusOutlined,
     ExclamationCircleOutlined
 } from '@ant-design/icons';
 import { App } from 'antd';
@@ -144,7 +142,6 @@ const UserProfile = ({ user }) => {
             key: 'action',
             render: (_, record) => (
                 <Space size="middle">
-                    {/* <a>Invite {record.name}</a> */}
                     <Button
                         info
                         icon={<EditOutlined />}

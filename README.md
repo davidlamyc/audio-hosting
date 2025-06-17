@@ -6,10 +6,10 @@ This web application is an audio hosting application with the frontend developed
 
 I endeavour to make more improvements to this application (including the below architecture diagram) before the 18th June 2025, including but not limited to the following:
 
-1. Analyse and implement the handling of various file formats (e.g. mp4/avi). Application currently only tested for mp3 format.
+1. Analyse and implement the handling of various file formats (e.g. mp4/avi). Application currently only tested for mp3 format. Update 17/6: Tested for mp3,ogg,wav,flac,aac. (Done)
 2. Analyse and implement a more scalable file storage solution, as local storage will certainly not scale. (Not required)
 3. Suggest production-ready architecture. (Done)
-4. Clean up as there is dead code
+4. Clean up as there is dead code. (Done)
 
 Any suggestions or feedback are welcomed :smile:
 

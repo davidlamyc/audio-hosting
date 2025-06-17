@@ -29,9 +29,7 @@ const { confirm } = Modal;
 
 const UserProfile = ({ user, setUser }) => {
     const [profileForm] = Form.useForm();
-    const [createUserForm] = Form.useForm();
     const [loading, setLoading] = useState(false);
-    const [createLoading, setCreateLoading] = useState(false);
     const { message } = App.useApp();
 
     const handleUpdateProfile = async (values) => {
