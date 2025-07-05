@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Session Management in Audio Hosting Application</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 40px;
+            font-size: 2.5em;
+        }
+        
+        .section {
+            margin-bottom: 40px;
+            padding: 25px;
+            border-radius: 8px;
+            border-left: 4px solid #1677ff;
+            background: #f8f9fa;
+        }
+        
+        .section-title {
+            font-size: 1.8em;
+            color: #1677ff;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .flow-diagram {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .flow-step {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        
+        .flow-step:hover {
+            border-color: #007bff;
+            box-shadow: 0 4px 12px rgba(0,123,255,0.15);
+        }
+        
+        .step-number {
+            background: #007bff;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        
+        .step-content {
+            flex: 1;
+        }
+        
+        .step-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .step-description {
+            color: #666;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+        
+        .code-block {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+        
+        .code-comment {
+            color: #68d391;
+        }
+        
+        .code-string {
+            color: #fbb6ce;
+        }
+        
+        .code-keyword {
+            color: #90cdf4;
+        }
+        
+        .session-storage {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .storage-option {
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            background: white;
+        }
+        
+        .memory-storage { border-color: #ffc107; }
+        .redis-storage { border-color: #dc3545; }
+        .database-storage { border-color: #28a745; }
+        
+        .storage-title {
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .pros-cons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .pros,
+        .cons {
+            padding: 10px;
+            border-radius: 4px;
+        }
+        
+        .pros {
+            background: #d4edda;
+            border-left: 3px solid #28a745;
+        }
+        
+        .cons {
+            background: #f8d7da;
+            border-left: 3px solid #dc3545;
+        }
+        
+        .session-lifecycle {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .lifecycle-title {
+            font-weight: 600;
+            color: #856404;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .security-considerations {
+            background: #f8d7da;
+            border: 2px solid #dc3545;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .security-title {
+            font-weight: 600;
+            color: #721c24;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .session-data {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .data-title {
+            font-weight: 600;
+            color: #1976d2;
+            margin-bottom: 15px;
+        }
+        
+        .data-structure {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 12px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+        
+        .middleware-flow {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .middleware-step {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            min-width: 120px;
+        }
+        
+        .middleware-arrow {
+            font-size: 1.5em;
+            color: #2196f3;
+            font-weight: bold;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        .comparison-table th,
+        .comparison-table td {
+            border: 1px solid #dee2e6;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        .comparison-table th {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .comparison-table tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .api-usage {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .usage-card {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        
+        .usage-title {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 12px;
+        }
+        
+        .usage-description {
+            color: #6c757d;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+        
+        .best-practices {
+            background: #d1ecf1;
+            border: 2px solid #17a2b8;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .practices-title {
+            font-weight: 600;
+            color: #0c5460;
+            margin-bottom: 15px;
+        }
+        
+        .practice-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .practice-list li {
+            margin-bottom: 8px;
+            padding-left: 25px;
+            position: relative;
+        }
+        
+        .practice-list li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .session-storage {
+                grid-template-columns: 1fr;
+            }
+            
+            .middleware-flow {
+                flex-direction: column;
+            }
+            
+            .pros-cons {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Session Management in Audio Hosting App</h1>
+        
+        <!-- Session Overview -->
+        <div class="section">
+            <div class="section-title">What are Sessions?</div>
+            <p>Sessions provide a way to store user data across multiple HTTP requests. Since HTTP is stateless, sessions allow your application to "remember" that a user is logged in and maintain their authentication state.</p>
+            
+            <div class="session-data">
+                <div class="data-title">Session Data Structure in Your App:</div>
+                <div class="data-structure">
+{
+  "userId": 1,
+  "username": "admin",
+  "loginTime": "2024-06-15T10:30:00.000Z",
+  "lastActivity": "2024-06-15T11:45:00.000Z",
+  "cookie": {
+    "originalMaxAge": 86400000,
+    "expires": "2024-06-16T10:30:00.000Z",
+    "secure": false,
+    "httpOnly": true,
+    "path": "/"
+  }
+}
+                </div>
+                <p>This data is stored server-side and identified by a session ID sent via cookie.</p>
+            </div>
+        </div>
+        
+        <!-- Session Configuration -->
+        <div class="section">
+            <div class="section-title">Session Configuration in Your App</div>
+            
+            <div class="code-block">
+<span class="code-comment">// backend/src/server.js</span>
+<span class="code-keyword">const</span> session = <span class="code-keyword">require</span>(<span class="code-string">'express-session'</span>);
+
+app.use(session({
+  secret: process.env.SESSION_SECRET || <span class="code-string">'audio-hosting-secret'</span>, <span class="code-comment">// Signs session ID</span>
+  resave: <span class="code-keyword">false</span>,              <span class="code-comment">// Don't save unchanged sessions</span>
+  saveUninitialized: <span class="code-keyword">false</span>,  <span class="code-comment">// Don't save empty sessions</span>
+  cookie: { 
+    secure: <span class="code-keyword">false</span>,           <span class="code-comment">// true for HTTPS only</span>
+    maxAge: 24 * 60 * 60 * 1000 <span class="code-comment">// 24 hours in milliseconds</span>
+  }
+}));
+            </div>
+            
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Option</th>
+                        <th>Value</th>
+                        <th>Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>secret</code></td>
+                        <td>'audio-hosting-secret'</td>
+                        <td>Signs session ID to prevent tampering</td>
+                    </tr>
+                    <tr>
+                        <td><code>resave</code></td>
+                        <td>false</td>
+                        <td>Only save session if it was modified</td>
+                    </tr>
+                    <tr>
+                        <td><code>saveUninitialized</code></td>
+                        <td>false</td>
+                        <td>Don't create session until login</td>
+                    </tr>
+                    <tr>
+                        <td><code>maxAge</code></td>
+                        <td>24 hours</td>
+                        <td>Session expires after 24 hours</td>
+                    </tr>
+                    <tr>
+                        <td><code>httpOnly</code></td>
+                        <td>true</td>
+                        <td>Prevents JavaScript access (XSS protection)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Authentication Flow -->
+        <div class="section">
+            <div class="section-title">Authentication Flow with Sessions</div>
+            
+            <div class="flow-diagram">
+                <div class="flow-step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <div class="step-title">User Login Request</div>
+                        <div class="step-description">Frontend sends POST /api/auth/login with username/password</div>
+                    </div>
+                </div>
+                
+                <div class="flow-step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <div class="step-title">Credential Verification</div>
+                        <div class="step-description">Backend checks username/password against database using bcrypt</div>
+                    </div>
+                </div>
+                
+                <div class="flow-step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <div class="step-title">Session Creation</div>
+                        <div class="step-description">If valid, server creates session: req.session.userId = user.id</div>
+                    </div>
+                </div>
+                
+                <div class="flow-step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <div class="step-title">Cookie Sent to Browser</div>
+                        <div class="step-description">Server sends Set-Cookie header with session ID (connect.sid)</div>
+                    </div>
+                </div>
+                
+                <div class="flow-step">
+                    <div class="step-number">5</div>
+                    <div class="step-content">
+                        <div class="step-title">Subsequent Requests</div>
+                        <div class="step-description">Browser automatically sends cookie with every request</div>
+                    </div>
+                </div>
+                
+                <div class="flow-step">
+                    <div class="step-number">6</div>
+                    <div class="step-content">
+                        <div class="step-title">Session Lookup</div>
+                        <div class="step-description">Server uses session ID to retrieve user data: req.session.userId</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- How req.session is Used -->
+        <div class="section">
+            <div class="section-title">How req.session is Used Throughout the App</div>
+            
+            <div class="api-usage">
+                <div class="usage-card">
+                    <div class="usage-title">🔐 Authentication Controller</div>
+                    <div class="usage-description">Creates and destroys sessions during login/logout</div>
+                    <div class="code-block">
+<span class="code-comment">// Login - Create session</span>
+req.session.userId = user.id;
+req.session.username = user.username;
+
+<span class="code-comment">// Logout - Destroy session</span>
+req.session.destroy((err) => {
+  <span class="code-keyword">if</span> (err) <span class="code-keyword">return</span> res.status(500);
+  res.json({ message: <span class="code-string">'Logout successful'</span> });
+});
+                    </div>
+                </div>
+                
+                <div class="usage-card">
+                    <div class="usage-title">🛡️ Authentication Middleware</div>
+                    <div class="usage-description">Checks if user is logged in before allowing access</div>
+                    <div class="code-block">
+<span class="code-comment">// middleware/auth.js</span>
+<span class="code-keyword">const</span> authMiddleware = (req, res, next) => {
+  <span class="code-keyword">if</span> (!req.session.userId) {
+    <span class="code-keyword">return</span> res.status(401).json({ 
+      message: <span class="code-string">'Authentication required'</span> 
+    });
+  }
+  next(); <span class="code-comment">// User is logged in</span>
+};
+                    </div>
+                </div>
+                
+                <div class="usage-card">
+                    <div class="usage-title">🎵 Audio Controller</div>
+                    <div class="usage-description">Uses session to ensure users only access their own files</div>
+                    <div class="code-block">
+<span class="code-comment">// Only get current user's files</span>
+<span class="code-keyword">const</span> userId = req.session.userId;
+<span class="code-keyword">const</span> result = <span class="code-keyword">await</span> pool.query(
+  <span class="code-string">'SELECT * FROM audio_files WHERE user_id = $1'</span>,
+  [userId]
+);
+
+<span class="code-comment">// Upload file for current user</span>
+<span class="code-keyword">await</span> pool.query(
+  <span class="code-string">'INSERT INTO audio_files (user_id, ...) VALUES ($1, ...)'</span>,
+  [req.session.userId, ...]
+);
+                    </div>
+                </div>
+                
+                <div class="usage-card">
+                    <div class="usage-title">👤 User Controller</div>
+                    <div class="usage-description">Ensures users can only modify their own accounts</div>
+                    <div class="code-block">
+<span class="code-comment">// Check ownership before update</span>
+<span class="code-keyword">if</span> (parseInt(userId) !== req.session.userId) {
+  <span class="code-keyword">return</span> res.status(403).json({ 
+    message: <span class="code-string">'Unauthorized'</span> 
+  });
+}
+
+<span class="code-comment">// Update user's own profile</span>
+<span class="code-keyword">await</span> pool.query(
+  <span class="code-string">'UPDATE users SET ... WHERE id = $1'</span>,
+  [req.session.userId]
+);
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Session Storage Options -->
+        <div class="section">
+            <div class="section-title">Session Storage Options</div>
+            
+            <div class="session-storage">
+                <div class="storage-option memory-storage">
+                    <div class="storage-title">🧠 Memory Store (Current - Development Only)</div>
+                    <p>Sessions stored in server memory (default)</p>
+                    
+                    <div class="pros-cons">
+                        <div class="pros">
+                            <strong>✅ Pros:</strong>
+                            <ul>
+                                <li>Simple setup</li>
+                                <li>Fast access</li>
+                                <li>No external dependencies</li>
+                            </ul>
+                        </div>
+                        <div class="cons">
+                            <strong>❌ Cons:</strong>
+                            <ul>
+                                <li>Lost on server restart</li>
+                                <li>Not scalable</li>
+                                <li>Memory leaks possible</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="storage-option redis-storage">
+                    <div class="storage-title">🔴 Redis Store (Recommended for Production)</div>
+                    <p>Sessions stored in Redis cache</p>
+                    
+                    <div class="pros-cons">
+                        <div class="pros">
+                            <strong>✅ Pros:</strong>
+                            <ul>
+                                <li>Persistent across restarts</li>
+                                <li>Scalable to multiple servers</li>
+                                <li>Fast performance</li>
+                                <li>Built-in expiration</li>
+                            </ul>
+                        </div>
+                        <div class="cons">
+                            <strong>❌ Cons:</strong>
+                            <ul>
+                                <li>Additional infrastructure</li>
+                                <li>Network latency</li>
+                                <li>More complex setup</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="code-block">
+<span class="code-comment">// Redis session store setup for production</span>
+<span class="code-keyword">const</span> RedisStore = <span class="code-keyword">require</span>(<span class="code-string">'connect-redis'</span>)(session);
+<span class="code-keyword">const</span> redis = <span class="code-keyword">require</span>(<span class="code-string">'redis'</span>);
+<span class="code-keyword">const</span> client = redis.createClient({
+  host: process.env.REDIS_HOST,
+  port: process.env.REDIS_PORT,
+  password: process.env.REDIS_PASSWORD
+});
+
+app.use(session({
+  store: <span class="code-keyword">new</span> RedisStore({ client: client }),
+  secret: process.env.SESSION_SECRET,
+  resave: <span class="code-keyword">false</span>,
+  saveUninitialized: <span class="code-keyword">false</span>,
+  cookie: {
+    secure: process.env.NODE_ENV === <span class="code-string">'production'</span>, <span class="code-comment">// HTTPS in production</span>
+    maxAge: 24 * 60 * 60 * 1000
+  }
+}));
+            </div>
+        </div>
+        
+        <!-- Session Lifecycle -->
+        <div class="session-lifecycle">
+            <div class="lifecycle-title">⏱️ Session Lifecycle</div>
+            
+            <div class="middleware-flow">
+                <div class="middleware-step">
+                    <strong>Session Created</strong><br>
+                    On successful login
+                </div>
+                <div class="middleware-arrow">→</div>
+                <div class="middleware-step">
+                    <strong>Session Active</strong><br>
+                    User makes requests
+                </div>
+                <div class="middleware-arrow">→</div>
+                <div class="middleware-step">
+                    <strong>Session Expires</strong><br>
+                    After 24 hours or logout
+                </div>
+            </div>
+            
+            <p><strong>Automatic Cleanup:</strong> Express-session automatically removes expired sessions, preventing memory leaks and security issues.</p>
+        </div>
+        
+        <!-- Security Considerations -->
+        <div class="security-considerations">
+            <div class="security-title">🔒 Security Considerations</div>
+            
+            <ul>
+                <li><strong>Session Secret:</strong> Use a strong, random secret (minimum 32 characters)</li>
+                <li><strong>HTTPS Only:</strong> Set <code>secure: true</code> in production to prevent session hijacking</li>
+                <li><strong>HttpOnly Cookies:</strong> Prevents XSS attacks from stealing session cookies</li>
+                <li><strong>Session Expiration:</strong> Automatic logout after inactivity</li>
+                <li><strong>Session Regeneration:</strong> New session ID on login prevents session fixation</li>
+                <li><strong>CSRF Protection:</strong> Consider adding CSRF tokens for state-changing operations</li>
+            </ul>
+            
+            <div class="code-block">
+<span class="code-comment">// Production security configuration</span>
+app.use(session({
+  secret: process.env.SESSION_SECRET, <span class="code-comment">// Strong random string</span>
+  resave: <span class="code-keyword">false</span>,
+  saveUninitialized: <span class="code-keyword">false</span>,
+  cookie: {
+    secure: <span class="code-keyword">true</span>,        <span class="code-comment">// HTTPS only</span>
+    httpOnly: <span class="code-keyword">true</span>,     <span class="code-comment">// No JavaScript access</span>
+    maxAge: 1000 * 60 * 60 * 2, <span class="code-comment">// 2 hours</span>
+    sameSite: <span class="code-string">'strict'</span>   <span class="code-comment">// CSRF protection</span>
+  }
+}));
+            </div>
+        </div>
+        
+        <!-- Frontend Integration -->
+        <div class="section">
+            <div class="section-title">Frontend Integration with Sessions</div>
+            
+            <div class="code-block">
+<span class="code-comment">// frontend/src/App.js</span>
+<span class="code-comment">// Configure axios to send cookies with requests</span>
+axios.defaults.withCredentials = <span class="code-keyword">true</span>;
+
+<span class="code-comment">// Check if user is authenticated</span>
+<span class="code-keyword">const</span> checkAuthStatus = <span class="code-keyword">async</span> () => {
+  <span class="code-keyword">try</span> {
+    <span class="code-keyword">const</span> response = <span class="code-keyword">await</span> axios.get(<span class="code-string">'/api/auth/check'</span>);
+    <span class="code-keyword">if</span> (response.data.authenticated) {
+      setUser(response.data.user); <span class="code-comment">// User logged in</span>
+    }
+  } <span class="code-keyword">catch</span> (error) {
+    console.error(<span class="code-string">'Auth check failed:'</span>, error);
+  }
+};
+
+<span class="code-comment">// Login function</span>
+<span class="code-keyword">const</span> handleLogin = <span class="code-keyword">async</span> (credentials) => {
+  <span class="code-keyword">try</span> {
+    <span class="code-keyword">const</span> response = <span class="code-keyword">await</span> axios.post(<span class="code-string">'/api/auth/login'</span>, credentials);
+    setUser(response.data.user);
+    <span class="code-comment">// Session cookie automatically stored by browser</span>
+  } <span class="code-keyword">catch</span> (error) {
+    setError(<span class="code-string">'Login failed'</span>);
+  }
+};
+
+<span class="code-comment">// Logout function</span>
+<span class="code-keyword">const</span> handleLogout = <span class="code-keyword">async</span> () => {
+  <span class="code-keyword">try</span> {
+    <span class="code-keyword">await</span> axios.post(<span class="code-string">'/api/auth/logout'</span>);
+    setUser(<span class="code-keyword">null</span>);
+    <span class="code-comment">// Session destroyed on server</span>
+  } <span class="code-keyword">catch</span> (error) {
+    console.error(<span class="code-string">'Logout failed:'</span>, error);
+  }
+};
+            </div>
+        </div>
+        
+        <!-- Best Practices -->
+        <div class="best-practices">
+            <div class="practices-title">💡 Session Best Practices</div>
+            
+            <ul class="practice-list">
+                <li>Use Redis or database store in production, never memory store</li>
+                <li>Set appropriate session timeout (2-24 hours depending on app sensitivity)</li>
+                <li>Regenerate session ID on login to prevent session fixation</li>
+                <li>Use HTTPS in production with secure cookies</li>
+                <li>Implement session cleanup for expired sessions</li>
+                <li>Monitor session store performance and memory usage</li>
+                <li>Consider implementing "remember me" functionality with separate tokens</li>
+                <li>Log session events (login, logout, expiration) for security auditing</li>
+                <li>Implement maximum concurrent sessions per user if needed</li>
+                <li>Use environment variables for all session configuration</li>
+            </ul>
+        </div>
+        
+        <!-- Common Issues -->
+        <div class="section">
+            <div class="section-title">🐛 Common Session Issues & Solutions</div>
+            
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Issue</th>
+                        <th>Cause</th>
+                        <th>Solution</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Sessions lost on server restart</td>
+                        <td>Using memory store</td>
+                        <td>Switch to Redis or database store</td>
+                    </tr>
+                    <tr>
+                        <td>CORS issues with authentication</td>
+                        <td>withCredentials not set</td>
+                        <td>Set axios.defaults.withCredentials = true</td>
+                    </tr>
+                    <tr>
+                        <td>Session not created</td>
+                        <td>saveUninitialized: false</td>
+                        <td>Explicitly save session: req.session.save()</td>
+                    </tr>
+                    <tr>
+                        <td>Multiple logins overwrite sessions</td>
+                        <td>Default behavior</td>
+                        <td>Implement session management logic</td>
+                    </tr>
+                    <tr>
+                        <td>Sessions not working in production</td>
+                        <td>Secure cookies without HTTPS</td>
+                        <td>Set secure: false or implement HTTPS</td>
+                    </tr>
+                    <tr>
+                        <td>Memory leaks in development</td>
+                        <td>Sessions accumulating in memory</td>
+                        <td>Restart server or use Redis in development</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Advanced Session Features -->
+        <div class="section">
+            <div class="section-title">🚀 Advanced Session Features</div>
+            
+            <div class="api-usage">
+                <div class="usage-card">
+                    <div class="usage-title">🔄 Session Regeneration</div>
+                    <div class="usage-description">Generate new session ID on login for security</div>
+                    <div class="code-block">
+<span class="code-comment">// Regenerate session ID on login</span>
+<span class="code-keyword">async</span> login(req, res) {
+  <span class="code-comment">// Verify credentials first...</span>
+  
+  <span class="code-comment">// Regenerate session ID</span>
+  req.session.regenerate((err) => {
+    <span class="code-keyword">if</span> (err) <span class="code-keyword">return</span> res.status(500);
+    
+    <span class="code-comment">// Set user data in new session</span>
+    req.session.userId = user.id;
+    req.session.username = user.username;
+    req.session.loginTime = <span class="code-keyword">new</span> Date();
+    
+    req.session.save((err) => {
+      <span class="code-keyword">if</span> (err) <span class="code-keyword">return</span> res.status(500);
+      res.json({ message: <span class="code-string">'Login successful'</span>, user });
+    });
+  });
+}
+                    </div>
+                </div>
+                
+                <div class="usage-card">
+                    <div class="usage-title">⏰ Activity Tracking</div>
+                    <div class="usage-description">Track user activity for session management</div>
+                    <div class="code-block">
+<span class="code-comment">// Middleware to track last activity</span>
+<span class="code-keyword">const</span> trackActivity = (req, res, next) => {
+  <span class="code-keyword">if</span> (req.session.userId) {
+    req.session.lastActivity = <span class="code-keyword">new</span> Date();
+    
+    <span class="code-comment">// Auto-logout after 2 hours of inactivity</span>
+    <span class="code-keyword">const</span> twoHours = 2 * 60 * 60 * 1000;
+    <span class="code-keyword">const</span> now = <span class="code-keyword">new</span> Date();
+    
+    <span class="code-keyword">if</span> (now - req.session.lastActivity > twoHours) {
+      req.session.destroy();
+      <span class="code-keyword">return</span> res.status(401).json({ 
+        message: <span class="code-string">'Session expired due to inactivity'</span> 
+      });
+    }
+  }
+  next();
+};
+
+<span class="code-comment">// Apply to all protected routes</span>
+app.use(<span class="code-string">'/api/audio'</span>, trackActivity, audioRoutes);
+app.use(<span class="code-string">'/api/users'</span>, trackActivity, userRoutes);
+                    </div>
+                </div>
+                
+                <div class="usage-card">
+                    <div class="usage-title">📊 Session Analytics</div>
+                    <div class="usage-description">Track session metrics for monitoring</div>
+                    <div class="code-block">
+<span class="code-comment">// Session analytics middleware</span>
+<span class="code-keyword">const</span> sessionAnalytics = (req, res, next) => {
+  <span class="code-keyword">if</span> (req.session.userId) {
+    <span class="code-comment">// Track session data</span>
+    req.session.requestCount = (req.session.requestCount || 0) + 1;
+    req.session.userAgent = req.headers[<span class="code-string">'user-agent'</span>];
+    req.session.ipAddress = req.ip;
+    
+    <span class="code-comment">// Log session activity</span>
+    console.log(<span class="code-string">`User ${req.session.userId} - Request #${req.session.requestCount}`</span>);
+  }
+  next();
+};
+
+<span class="code-comment">// Get session info endpoint</span>
+app.get(<span class="code-string">'/api/auth/session-info'</span>, authMiddleware, (req, res) => {
+  res.json({
+    userId: req.session.userId,
+    username: req.session.username,
+    loginTime: req.session.loginTime,
+    lastActivity: req.session.lastActivity,
+    requestCount: req.session.requestCount,
+    sessionAge: <span class="code-keyword">new</span> Date() - req.session.loginTime
+  });
+});
+                    </div>
+                </div>
+                
+                <div class="usage-card">
+                    <div class="usage-title">🔒 Concurrent Session Management</div>
+                    <div class="usage-description">Limit concurrent sessions per user</div>
+                    <div class="code-block">
+<span class="code-comment">// Store active sessions per user</span>
+<span class="code-keyword">const</span> activeSessions = <span class="code-keyword">new</span> Map(); <span class="code-comment">// userId -> Set of sessionIds</span>
+
+<span class="code-comment">// On login</span>
+<span class="code-keyword">async</span> login(req, res) {
+  <span class="code-comment">// After successful authentication...</span>
+  
+  <span class="code-keyword">const</span> userId = user.id;
+  <span class="code-keyword">const</span> maxSessions = 3; <span class="code-comment">// Allow 3 concurrent sessions</span>
+  
+  <span class="code-comment">// Get or create session set for user</span>
+  <span class="code-keyword">if</span> (!activeSessions.has(userId)) {
+    activeSessions.set(userId, <span class="code-keyword">new</span> Set());
+  }
+  
+  <span class="code-keyword">const</span> userSessions = activeSessions.get(userId);
+  
+  <span class="code-comment">// Check session limit</span>
+  <span class="code-keyword">if</span> (userSessions.size >= maxSessions) {
+    <span class="code-keyword">return</span> res.status(429).json({ 
+      message: <span class="code-string">'Maximum concurrent sessions reached'</span> 
+    });
+  }
+  
+  <span class="code-comment">// Add new session</span>
+  req.session.regenerate((err) => {
+    req.session.userId = userId;
+    userSessions.add(req.session.id);
+    res.json({ message: <span class="code-string">'Login successful'</span> });
+  });
+}
+
+<span class="code-comment">// On logout</span>
+<span class="code-keyword">async</span> logout(req, res) {
+  <span class="code-keyword">const</span> userId = req.session.userId;
+  <span class="code-keyword">const</span> sessionId = req.session.id;
+  
+  <span class="code-comment">// Remove from active sessions</span>
+  <span class="code-keyword">if</span> (activeSessions.has(userId)) {
+    activeSessions.get(userId).delete(sessionId);
+  }
+  
+  req.session.destroy();
+  res.json({ message: <span class="code-string">'Logout successful'</span> });
+}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Production Deployment -->
+        <div class="section">
+            <div class="section-title">🚀 Production Session Configuration</div>
+            
+            <div class="code-block">
+<span class="code-comment">// Production-ready session configuration</span>
+<span class="code-keyword">const</span> session = <span class="code-keyword">require</span>(<span class="code-string">'express-session'</span>);
+<span class="code-keyword">const</span> RedisStore = <span class="code-keyword">require</span>(<span class="code-string">'connect-redis'</span>)(session);
+<span class="code-keyword">const</span> redis = <span class="code-keyword">require</span>(<span class="code-string">'redis'</span>);
+
+<span class="code-comment">// Redis client with clustering support</span>
+<span class="code-keyword">const</span> redisClient = redis.createClient({
+  host: process.env.REDIS_HOST,
+  port: process.env.REDIS_PORT,
+  password: process.env.REDIS_PASSWORD,
+  db: process.env.REDIS_DB || 0,
+  retry_strategy: (options) => {
+    <span class="code-keyword">if</span> (options.error && options.error.code === <span class="code-string">'ECONNREFUSED'</span>) {
+      <span class="code-keyword">return</span> <span class="code-keyword">new</span> Error(<span class="code-string">'Redis server connection refused'</span>);
+    }
+    <span class="code-keyword">if</span> (options.total_retry_time > 1000 * 60 * 60) {
+      <span class="code-keyword">return</span> <span class="code-keyword">new</span> Error(<span class="code-string">'Retry time exhausted'</span>);
+    }
+    <span class="code-keyword">return</span> Math.min(options.attempt * 100, 3000);
+  }
+});
+
+<span class="code-comment">// Production session configuration</span>
+<span class="code-keyword">const</span> sessionConfig = {
+  store: <span class="code-keyword">new</span> RedisStore({ 
+    client: redisClient,
+    prefix: <span class="code-string">'audio-hosting:'</span> <span class="code-comment">// Namespace sessions</span>
+  }),
+  secret: process.env.SESSION_SECRET,
+  name: <span class="code-string">'sessionId'</span>, <span class="code-comment">// Don't use default 'connect.sid'</span>
+  resave: <span class="code-keyword">false</span>,
+  saveUninitialized: <span class="code-keyword">false</span>,
+  rolling: <span class="code-keyword">true</span>, <span class="code-comment">// Reset expiration on activity</span>
+  cookie: {
+    secure: process.env.NODE_ENV === <span class="code-string">'production'</span>,
+    httpOnly: <span class="code-keyword">true</span>,
+    maxAge: parseInt(process.env.SESSION_MAX_AGE) || (24 * 60 * 60 * 1000),
+    sameSite: <span class="code-string">'strict'</span> <span class="code-comment">// CSRF protection</span>
+  }
+};
+
+app.use(session(sessionConfig));
+
+<span class="code-comment">// Session error handling</span>
+redisClient.on(<span class="code-string">'error'</span>, (err) => {
+  console.error(<span class="code-string">'Redis session store error:'</span>, err);
+});
+
+redisClient.on(<span class="code-string">'connect'</span>, () => {
+  console.log(<span class="code-string">'Redis session store connected'</span>);
+});
+            </div>
+            
+            <div class="best-practices">
+                <div class="practices-title">🔧 Environment Variables for Production</div>
+                <div class="code-block">
+<span class="code-comment"># .env.production</span>
+SESSION_SECRET=your-super-secure-random-string-minimum-32-characters
+REDIS_HOST=your-redis-host.amazonaws.com
+REDIS_PORT=6379
+REDIS_PASSWORD=your-redis-password
+REDIS_DB=0
+SESSION_MAX_AGE=86400000  # 24 hours in milliseconds
+NODE_ENV=production
+                </div>
+            </div>
+        </div>
+        
+        <!-- Session vs JWT Comparison -->
+        <div class="section">
+            <div class="section-title">⚖️ Sessions vs JWT Tokens</div>
+            
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>Sessions (Current Implementation)</th>
+                        <th>JWT Tokens</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Storage</strong></td>
+                        <td>Server-side (Redis/Database)</td>
+                        <td>Client-side (Browser)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>State</strong></td>
+                        <td>Stateful - server tracks sessions</td>
+                        <td>Stateless - no server storage</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Security</strong></td>
+                        <td>More secure - session ID is meaningless</td>
+                        <td>Less secure - token contains data</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Scalability</strong></td>
+                        <td>Requires shared session store</td>
+                        <td>Highly scalable - no shared state</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Logout</strong></td>
+                        <td>Server destroys session immediately</td>
+                        <td>Token remains valid until expiration</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Network</strong></td>
+                        <td>Small cookie (~100 bytes)</td>
+                        <td>Larger token (~500-1000 bytes)</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Use Case</strong></td>
+                        <td>Traditional web apps, user privacy</td>
+                        <td>APIs, microservices, mobile apps</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <p><strong>Why Sessions are Used in Your App:</strong></p>
+            <ul>
+                <li>✅ <strong>Better Security:</strong> Session ID reveals nothing if intercepted</li>
+                <li>✅ <strong>Immediate Logout:</strong> Can revoke access instantly</li>
+                <li>✅ <strong>User Privacy:</strong> No user data stored on client</li>
+                <li>✅ <strong>Traditional Web App:</strong> Perfect for server-rendered + SPA hybrid</li>
+                <li>✅ <strong>CSRF Protection:</strong> HttpOnly cookies prevent XSS attacks</li>
+            </ul>
+        </div>
+        
+        <!-- Summary -->
+        <div class="best-practices">
+            <div class="practices-title">📋 Session Usage Summary in Your App</div>
+            
+            <p><strong>Sessions provide the authentication backbone of your audio hosting application:</strong></p>
+            
+            <ul class="practice-list">
+                <li><strong>User Identity:</strong> req.session.userId identifies the current user</li>
+                <li><strong>Access Control:</strong> Every protected endpoint checks req.session.userId</li>
+                <li><strong>Data Isolation:</strong> Users can only access their own audio files</li>
+                <li><strong>Automatic Expiration:</strong> Sessions expire after 24 hours for security</li>
+                <li><strong>Cross-Request State:</strong> Login persists across multiple requests</li>
+                <li><strong>Security:</strong> HttpOnly cookies prevent XSS attacks</li>
+                <li><strong>Scalability:</strong> Redis store allows horizontal scaling</li>
+                <li><strong>User Experience:</strong> Seamless authentication without re-login</li>
+            </ul>
+            
+            <p style="margin-top: 20px; font-weight: 500; color: #0c5460;">
+                The session system ensures that once a user logs in, they can upload files, browse their library, and manage their account without needing to re-authenticate for each action, while maintaining strong security boundaries between users.
+            </p>
+        </div>
+    </div>
+</body>
+</html>
